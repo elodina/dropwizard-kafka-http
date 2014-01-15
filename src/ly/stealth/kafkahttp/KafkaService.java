@@ -16,6 +16,6 @@ public class KafkaService extends Service<KafkaConfiguration> {
 
     @Override
     public void run(KafkaConfiguration configuration, Environment environment) {
-        environment.addResource(new MessageResource());
+        environment.addResource(new MessageResource(configuration));
     }
 }

@@ -1,1 +1,10 @@
-dummy: 1
+producer:
+  metadataBrokerList: "localhost:9092"
+  serializerClass: "kafka.serializer.StringEncoder"
+  producerType: "sync"
+
+consumer:
+  zookeeperConnect: "localhost:2181"
+  groupId: "group"
+  consumerTimeoutMs: 500
+

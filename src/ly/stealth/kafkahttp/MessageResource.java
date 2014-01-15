@@ -2,8 +2,10 @@ package ly.stealth.kafkahttp;
 
 import com.google.common.base.Strings;
 import com.yammer.metrics.annotation.Timed;
-import kafka.api.OffsetRequest;
-import kafka.consumer.*;
+import kafka.consumer.Consumer;
+import kafka.consumer.ConsumerConfig;
+import kafka.consumer.ConsumerTimeoutException;
+import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.javaapi.producer.Producer;
 import kafka.message.MessageAndMetadata;
@@ -19,30 +21,29 @@ import java.util.*;
 @Path("/message")
 @Produces(MediaType.APPLICATION_JSON)
 public class MessageResource {
+    private KafkaConfiguration configuration;
+
+    public MessageResource(KafkaConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
     @POST
     @Timed
     public Response produce(
             @QueryParam("topic") String topic,
-            @QueryParam("async") boolean async
+            @QueryParam("async") Boolean async
     ) {
-        // todo parse message from post body
-        Random rnd = new Random();
-
-        Properties props = new Properties();
-        props.put("metadata.broker.list", "localhost:9092"); // todo configure
-        props.put("serializer.class", "kafka.serializer.StringEncoder"); // todo configure
-        props.put("producer.type", async ? "async" : "sync");
-
+        Properties props = configuration.producer.asProperties();
+        if (async != null) props.put("producer.type", async ? "async" : "sync");
         ProducerConfig config = new ProducerConfig(props);
+
+        String key = "key";
+        String msg = "message";
+        KeyedMessage<String, String> data = new KeyedMessage<>(topic, key, msg);
+
         Producer<String, String> producer = new Producer<>(config);
-
-        String ip = "192.168.2." + rnd.nextInt(255); // todo use message
-        String msg = "1";
-
-        KeyedMessage<String, String> data = new KeyedMessage<>(topic, ip, msg);
-        producer.send(data);
-
-        producer.close(); // todo close in finally
+        try { producer.send(data); }
+        finally { producer.close(); }
 
         return Response.ok().build();
     }
@@ -55,13 +56,7 @@ public class MessageResource {
         if (Strings.isNullOrEmpty(topic))
             return Response.status(400).build();
 
-        Properties props = new Properties();
-        props.put("zookeeper.connect", "localhost:2181"); // todo configure
-        props.put("group.id", "group"); // todo configure
-        props.put("auto.offset.reset", OffsetRequest.SmallestTimeString()); // todo what's this ?
-        props.put("consumer.timeout.ms", "100"); // todo configure
-
-        ConsumerConfig config = new ConsumerConfig(props);
+        ConsumerConfig config = new ConsumerConfig(configuration.consumer.asProperties());
         ConsumerConnector connector = Consumer.createJavaConsumerConnector(config);
 
         Map<String, Integer> streamCounts = Collections.singletonMap(topic, 1);
