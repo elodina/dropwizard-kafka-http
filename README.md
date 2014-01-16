@@ -6,7 +6,9 @@ This project creates a REST kafka http endpoint for producing/consuming messages
 
 ### Produce messages
 ```
-POST /message?topic=$topic&async={true|false}&message=$message0&key=$key0,message=$message1,key=$key1, ...
+POST /message?topic=$topic&async={true|false}&message=$message0&key=$key0,
+              message=$message1,key=$key1, ...
+
 Produces messages on topic.
 
 Parameters:
