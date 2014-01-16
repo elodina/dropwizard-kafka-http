@@ -1,34 +1,28 @@
-# dropwizard-kafka-http
+# Dropwizard KafkaHTTP
 
-This project creates a REST kafka http endpoint for producing/consuming messages.
+This project creates a REST Apache Kafka HTTP endpoint for producing/consuming messages.
 
 ## Running Project
 
 1) Install Vagrant [http://www.vagrantup.com/](http://www.vagrantup.com/)  
 2) Install Virtual Box [https://www.virtualbox.org/](https://www.virtualbox.org/)  
+3)
+4) vagrant up  
+5) `curl -d "topic=http&message=hello&key=0" "http://192.168.22.10:8080/message"`
+6) `curl "http://192.168.22.10:8080/message?topic=http"`    
 
-In the main kafka folder  
+You will see `[{"topic":"http","key":"0","message":"hello","partition":0,"offset":0}]J`
 
-1) vagrant up  
-2) `curl -d "topic=http&message=hello&key=0" "http://192.168.22.10:8080/message"`
-3) `curl "http://192.168.22.10:8080/message?topic=http"`
+* Zookeeper will be running on 192.168.22.5
+* KafkaHTTP is built cleanly before Zookeeper installs in `vagrant/zk.sh`
+* Broker One is running on 192.168.22.10
+* KafkaHTTP launches on 192.168.22.10 after Kafka Broker starts in `vagrant/broker.sh`
 
-once this is done 
-* Zookeeper will be running 192.168.86.5
-* Broker 1 on 192.168.86.10
-* All the tests in src/test/scala/* should pass  
+If you want you can login to the machines using `vagrant ssh zookeeper` and `vagrant ssh brokerOne`.    
 
-If you want you can login to the machines using vagrant ssh <machineName> but you don't need to.
+You can access the brokers and zookeeper also by their IP from your local without having to go into vm.    
 
-You can access the brokers and zookeeper by their IP from your local without having to go into vm.
-
-e.g.
-
-bin/kafka-console-producer.sh --broker-list 192.168.86.10:9092 --topic <topic name>
-
-bin/kafka-console-consumer.sh --zookeeper 192.168.86.5:2181 --topic <topic name> --from-beginning
-
-## Api methods
+## KafkaHTTP API methods
 
 ### Produce messages
 ```
