@@ -14,12 +14,13 @@ public class KafkaConfiguration extends Configuration {
         public String serializerClass;
         public String producerType;
 
-        public Properties asProperties() {
+        public Properties asProperties(Boolean async) {
             Properties p = new Properties();
 
             p.put("metadata.broker.list", metadataBrokerList);
             p.put("serializer.class", serializerClass);
             p.put("producer.type", producerType);
+            if (async != null) p.put("producer.type", async ? "async" : "sync");
 
             return p;
         }
@@ -30,13 +31,13 @@ public class KafkaConfiguration extends Configuration {
         public String groupId;
         public int consumerTimeoutMs;
 
-        public Properties asProperties() {
+        public Properties asProperties(Integer timeoutMs) {
             Properties p = new Properties();
 
             p.put("zookeeper.connect", zookeeperConnect);
             p.put("group.id", groupId);
             p.put("auto.offset.reset", OffsetRequest.SmallestTimeString());
-            p.put("consumer.timeout.ms", "" + consumerTimeoutMs);
+            p.put("consumer.timeout.ms", "" + (timeoutMs != null ? timeoutMs : consumerTimeoutMs));
 
             return p;
         }

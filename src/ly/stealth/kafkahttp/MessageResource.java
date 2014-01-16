@@ -31,18 +31,36 @@ public class MessageResource {
     @Timed
     public Response produce(
             @QueryParam("topic") String topic,
-            @QueryParam("async") Boolean async
+            @QueryParam("async") Boolean async,
+            @QueryParam("key") List<String> keys,
+            @QueryParam("message") List<String> messages
     ) {
-        Properties props = configuration.producer.asProperties();
-        if (async != null) props.put("producer.type", async ? "async" : "sync");
-        ProducerConfig config = new ProducerConfig(props);
+        List<String> errors = new ArrayList<>();
+        if (Strings.isNullOrEmpty(topic)) errors.add("Undefined topic");
 
-        String key = "key";
-        String msg = "message";
-        KeyedMessage<String, String> data = new KeyedMessage<>(topic, key, msg);
+        if (keys.isEmpty()) errors.add("Undefined key");
+        if (messages.isEmpty()) errors.add("Undefined message");
+        if (keys.size() != messages.size()) errors.add("Messages count != keys count");
 
+        if (!errors.isEmpty())
+            return Response.status(400)
+                    .entity(errors)
+                    .build();
+
+        assert keys != null;
+        assert messages != null;
+
+        List<KeyedMessage<String, String>> keyedMessages = new ArrayList<>();
+        for (int i = 0; i < keys.size(); i++) {
+            String key = keys.get(i);
+            String message = messages.get(i);
+            keyedMessages.add(new KeyedMessage<>(topic, key, message));
+        }
+
+        ProducerConfig config = new ProducerConfig(configuration.producer.asProperties(async));
         Producer<String, String> producer = new Producer<>(config);
-        try { producer.send(data); }
+
+        try { producer.send(keyedMessages); }
         finally { producer.close(); }
 
         return Response.ok().build();
@@ -51,12 +69,16 @@ public class MessageResource {
     @GET
     @Timed
     public Response consume(
-            @QueryParam("topic") String topic
+            @QueryParam("topic") String topic,
+            @QueryParam("timeout") Integer timeout
     ) {
         if (Strings.isNullOrEmpty(topic))
-            return Response.status(400).build();
+            return Response.status(400)
+                    .entity(new String[]{"Undefined topic"})
+                    .build();
 
-        ConsumerConfig config = new ConsumerConfig(configuration.consumer.asProperties());
+        Properties props = configuration.consumer.asProperties(timeout);
+        ConsumerConfig config = new ConsumerConfig(props);
         ConsumerConnector connector = Consumer.createJavaConsumerConnector(config);
 
         Map<String, Integer> streamCounts = Collections.singletonMap(topic, 1);
@@ -65,16 +87,36 @@ public class MessageResource {
 
         List<Message> messages = new ArrayList<>();
         try {
-            for (MessageAndMetadata<byte[], byte[]> messageAndMetadata : stream) {
-                Message message = new Message(messageAndMetadata.topic(), new String(messageAndMetadata.message(), "UTF-8"));
-                messages.add(message);
-            }
-        } catch (ConsumerTimeoutException | UnsupportedEncodingException ignore) {
+            for (MessageAndMetadata<byte[], byte[]> messageAndMetadata : stream)
+                messages.add(new Message(messageAndMetadata));
+        } catch (ConsumerTimeoutException ignore) {
         } finally {
             connector.commitOffsets();
             connector.shutdown();
         }
 
         return Response.ok(messages).build();
+    }
+
+    public static class Message {
+        public String topic;
+
+        public String key;
+        public String message;
+
+        public int partition;
+        public long offset;
+
+        public Message(MessageAndMetadata<byte[], byte[]> message) {
+            this.topic = message.topic();
+
+            try {
+                this.key = new String(message.key(), "UTF-8");
+                this.message = new String(message.message(), "UTF-8");
+            } catch (UnsupportedEncodingException impossible) { /* ignore */ }
+
+            this.partition = message.partition();
+            this.offset = message.offset();
+        }
     }
 }
