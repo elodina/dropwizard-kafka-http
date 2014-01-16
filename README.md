@@ -2,6 +2,32 @@
 
 This project creates a REST kafka http endpoint for producing/consuming messages.
 
+## Running Project
+
+1) Install Vagrant [http://www.vagrantup.com/](http://www.vagrantup.com/)  
+2) Install Virtual Box [https://www.virtualbox.org/](https://www.virtualbox.org/)  
+
+In the main kafka folder  
+
+1) vagrant up  
+2) `curl -d "topic=http&message=hello&key=0" "http://192.168.22.10:8080/message"`
+3) `curl "http://192.168.22.10:8080/message?topic=http"`
+
+once this is done 
+* Zookeeper will be running 192.168.86.5
+* Broker 1 on 192.168.86.10
+* All the tests in src/test/scala/* should pass  
+
+If you want you can login to the machines using vagrant ssh <machineName> but you don't need to.
+
+You can access the brokers and zookeeper by their IP from your local without having to go into vm.
+
+e.g.
+
+bin/kafka-console-producer.sh --broker-list 192.168.86.10:9092 --topic <topic name>
+
+bin/kafka-console-consumer.sh --zookeeper 192.168.86.5:2181 --topic <topic name> --from-beginning
+
 ## Api methods
 
 ### Produce messages
@@ -35,12 +61,4 @@ timeout - optional timeout in ms
 Errors:
 400     - wrong parameters passed
 ```
-## Running Project
-Project is build using maven.
-
-To run it execute:    
-1. mvn package    
-2. java -jar target/dropwizard-kafka-http.jar server kafka-http.yml    
-
-After that it should listen http on 8080.
 
