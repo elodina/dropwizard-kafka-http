@@ -1,12 +1,10 @@
-dropwizard-kafka-http
-=====================
+# dropwizard-kafka-http
 
 This project creates a REST kafka http endpoint for producing/consuming messages.
 
-The API methods are:
+## Api methods
 
-Produce messages
-----------------
+### Produce messages
 ```
 POST /message?topic=$topic&async={true|false}&message=$message0&key=$key0,message=$message1,key=$key1, ...
 Produces messages on topic.
@@ -23,8 +21,7 @@ Errors:
 400     - wrong parameters passed
 ```
 
-Consume messages
-----------------
+### Consume messages
 ```
 GET /message?topic=$topic&timeout=$timeout
 Returns consumed messages available on topic.
@@ -36,4 +33,12 @@ timeout - optional timeout in ms
 Errors:
 400     - wrong parameters passed
 ```
+## Running Project
+Project is build using maven.
+
+To run it execute:
+1. mvn package
+2. java -jar target/$your.jar server kafka-http.yml
+
+After that it should listen http on 8080.
 
