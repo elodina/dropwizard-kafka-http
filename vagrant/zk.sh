@@ -32,7 +32,7 @@ exitscript()
 
 apt-get -y update
 
-apt-get install -y software-properties-common python-software-properties
+apt-get install -y software-properties-common python-software-properties screen vim git wget
 add-apt-repository -y ppa:webupd8team/java
 apt-get -y update
 /bin/echo debconf shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
