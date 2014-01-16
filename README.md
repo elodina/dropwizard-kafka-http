@@ -40,7 +40,7 @@ Project is build using maven.
 
 To run it execute:
 1. mvn package
-2. java -jar target/$your.jar server kafka-http.yml
+2. java -jar target/dropwizard-kafka-http.jar server kafka-http.yml
 
 After that it should listen http on 8080.
 
