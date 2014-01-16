@@ -30,10 +30,10 @@ public class MessageResource {
     @POST
     @Timed
     public Response produce(
-            @QueryParam("topic") String topic,
-            @QueryParam("async") Boolean async,
-            @QueryParam("key") List<String> keys,
-            @QueryParam("message") List<String> messages
+            @FormParam("topic") String topic,
+            @FormParam("async") Boolean async,
+            @FormParam("key") List<String> keys,
+            @FormParam("message") List<String> messages
     ) {
         List<String> errors = new ArrayList<>();
         if (Strings.isNullOrEmpty(topic)) errors.add("Undefined topic");
