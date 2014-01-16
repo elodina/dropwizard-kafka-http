@@ -38,9 +38,9 @@ Errors:
 ## Running Project
 Project is build using maven.
 
-To run it execute:
-1. mvn package
-2. java -jar target/dropwizard-kafka-http.jar server kafka-http.yml
+To run it execute:    
+1. mvn package    
+2. java -jar target/dropwizard-kafka-http.jar server kafka-http.yml    
 
 After that it should listen http on 8080.
 
