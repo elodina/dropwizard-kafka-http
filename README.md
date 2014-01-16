@@ -11,7 +11,7 @@ This project creates a REST Apache Kafka HTTP endpoint for producing/consuming m
 5) `curl -d "topic=http&message=hello&key=0" "http://192.168.22.10:8080/message"`
 6) `curl "http://192.168.22.10:8080/message?topic=http"`    
 
-You will see `[{"topic":"http","key":"0","message":"hello","partition":0,"offset":0}]J`
+You will see `[{"topic":"http","key":"0","message":"hello","partition":0,"offset":0}]`
 
 * Zookeeper will be running on 192.168.22.5
 * KafkaHTTP is built cleanly before Zookeeper installs in `vagrant/zk.sh`
