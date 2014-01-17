@@ -14,13 +14,13 @@ public class KafkaConfiguration extends Configuration {
         public String serializerClass;
         public String producerType;
 
-        public Properties asProperties(Boolean async) {
+        public Properties asProperties() {
             Properties p = new Properties();
 
             p.put("metadata.broker.list", metadataBrokerList);
             p.put("serializer.class", serializerClass);
             p.put("producer.type", producerType);
-            if (async != null) p.put("producer.type", async ? "async" : "sync");
+            p.put("producer.type", "async");
 
             return p;
         }

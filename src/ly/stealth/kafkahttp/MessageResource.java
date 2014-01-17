@@ -10,7 +10,6 @@ import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.javaapi.producer.Producer;
 import kafka.message.MessageAndMetadata;
 import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -21,17 +20,18 @@ import java.util.*;
 @Path("/message")
 @Produces(MediaType.APPLICATION_JSON)
 public class MessageResource {
-    private KafkaConfiguration configuration;
+    private Producer<String, String> producer;
+    private KafkaConfiguration.Consumer consumerCfg;
 
-    public MessageResource(KafkaConfiguration configuration) {
-        this.configuration = configuration;
+    public MessageResource(Producer<String, String> producer, KafkaConfiguration.Consumer consumerCfg) {
+        this.producer = producer;
+        this.consumerCfg = consumerCfg;
     }
 
     @POST
     @Timed
     public Response produce(
             @FormParam("topic") String topic,
-            @FormParam("async") Boolean async,
             @FormParam("key") List<String> keys,
             @FormParam("message") List<String> messages
     ) {
@@ -57,12 +57,7 @@ public class MessageResource {
             keyedMessages.add(new KeyedMessage<>(topic, key, message));
         }
 
-        ProducerConfig config = new ProducerConfig(configuration.producer.asProperties(async));
-        Producer<String, String> producer = new Producer<>(config);
-
-        try { producer.send(keyedMessages); }
-        finally { producer.close(); }
-
+        producer.send(keyedMessages);
         return Response.ok().build();
     }
 
@@ -77,7 +72,7 @@ public class MessageResource {
                     .entity(new String[]{"Undefined topic"})
                     .build();
 
-        Properties props = configuration.consumer.asProperties(timeout);
+        Properties props = consumerCfg.asProperties(timeout);
         ConsumerConfig config = new ConsumerConfig(props);
         ConsumerConnector connector = Consumer.createJavaConsumerConnector(config);
 
