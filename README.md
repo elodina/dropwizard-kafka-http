@@ -9,7 +9,7 @@ This project creates an Apache Kafka HTTP endpoint for producing and consuming m
 3) git clone https://github.com/stealthly/dropwizard-kafka-http
 4) cd dropwizard-kafka-http
 5) vagrant up  
-6) `curl -d "topic=http&message=hello&key=0" "http://192.168.22.10:8080/message"`
+6) `curl -d "topic=http&message=hello&key=0" "http://192.168.22.10:8080/message"`    
 7) `curl "http://192.168.22.10:8080/message?topic=http"`    
 
 Your original message produced from the consumer `[{"topic":"http","key":"0","message":"hello","partition":0,"offset":0}]`
