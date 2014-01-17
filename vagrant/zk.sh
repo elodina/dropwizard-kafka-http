@@ -44,7 +44,7 @@ su vagrant -c "touch ~/.bashrc"
 su vagrant -c "echo 'export JAVA_HOME=/usr' >> ~/.bashrc"
 
 cd /tmp
-wget http://apache.spinellicreations.com/maven/maven-3/3.1.1/binaries/apache-maven-3.1.1-bin.tar.gz
+wget https://archive.apache.org/dist/maven/maven-3/3.1.1/binaries/apache-maven-3.1.1-bin.tar.gz
 mkdir -p /opt/apache
 cd /opt/apache/
 tar -xvf /tmp/apache-maven-3.1.1-bin.tar.gz
