@@ -25,8 +25,17 @@ If you want you can login to the machines using `vagrant ssh zookeeper` and `vag
 
 ### Produce messages
 ```
-POST /message?topic=$topic&message=$message0&key=$key0,
-              message=$message1,key=$key1, ...
+POST /message
+
+topic=$topic
+
+message=$message0
+
+key=$key0
+
+message=$message1
+
+key=$key1, ... etc
 
 Produces messages on topic.
 
