@@ -30,11 +30,9 @@ POST /message
 topic=$topic
 
 message=$message0
-
 key=$key0
 
 message=$message1
-
 key=$key1, ... etc
 
 Produces messages on topic.
