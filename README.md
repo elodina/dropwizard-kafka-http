@@ -7,8 +7,8 @@ This project creates an Apache Kafka HTTP endpoint for producing and consuming m
 1) Install Vagrant [http://www.vagrantup.com/](http://www.vagrantup.com/)  
 2) Install Virtual Box [https://www.virtualbox.org/](https://www.virtualbox.org/)  
 3) git clone https://github.com/stealthly/dropwizard-kafka-http
-4) cd dropwizard-kafka-http
-5) vagrant up  
+4) cd dropwizard-kafka-http    
+5) vagrant up    
 6) `curl -d "topic=http&message=hello&key=0" "http://192.168.22.10:8080/message"`    
 7) `curl "http://192.168.22.10:8080/message?topic=http"`    
 
