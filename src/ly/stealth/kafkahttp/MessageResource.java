@@ -35,7 +35,7 @@ public class MessageResource {
             @FormParam("key") List<String> keys,
             @FormParam("message") List<String> messages
     ) {
-        List<String> errors = new ArrayList<>();
+        List<String> errors = new ArrayList<String>();
         if (Strings.isNullOrEmpty(topic)) errors.add("Undefined topic");
 
         if (keys.isEmpty()) errors.add("Undefined key");
@@ -50,11 +50,11 @@ public class MessageResource {
         assert keys != null;
         assert messages != null;
 
-        List<KeyedMessage<String, String>> keyedMessages = new ArrayList<>();
+        List<KeyedMessage<String, String>> keyedMessages = new ArrayList<KeyedMessage<String, String>>();
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.get(i);
             String message = messages.get(i);
-            keyedMessages.add(new KeyedMessage<>(topic, key, message));
+            keyedMessages.add(new KeyedMessage<String, String>(topic, key, message));
         }
 
         producer.send(keyedMessages);
@@ -80,7 +80,7 @@ public class MessageResource {
         Map<String, List<KafkaStream<byte[], byte[]>>> streams = connector.createMessageStreams(streamCounts);
         KafkaStream<byte[], byte[]> stream = streams.get(topic).get(0);
 
-        List<Message> messages = new ArrayList<>();
+        List<Message> messages = new ArrayList<Message>();
         try {
             for (MessageAndMetadata<byte[], byte[]> messageAndMetadata : stream)
                 messages.add(new Message(messageAndMetadata));

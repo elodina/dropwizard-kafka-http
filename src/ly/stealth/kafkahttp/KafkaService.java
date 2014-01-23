@@ -22,7 +22,7 @@ public class KafkaService extends Service<KafkaConfiguration> implements Managed
     @Override
     public void run(KafkaConfiguration configuration, Environment environment) {
         ProducerConfig config = new ProducerConfig(configuration.producer.asProperties());
-        producer = new Producer<>(config);
+        producer = new Producer<String, String>(config);
 
         environment.manage(this);
         environment.addResource(new MessageResource(producer, configuration.consumer));
