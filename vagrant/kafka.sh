@@ -31,11 +31,11 @@ exitscript()
 }
 
 cd /tmp
-wget https://archive.apache.org/dist/kafka/0.8.0/kafka_2.8.0-0.8.0.tar.gz
-tar -xvf kafka_2.8.0-0.8.0.tar.gz
+wget https://archive.apache.org/dist/kafka/0.8.2-beta/kafka_2.10-0.8.2-beta.tgz
+tar -xvf kafka_2.10-0.8.2-beta.tgz
 mkdir -p /opt/apache
-mv kafka_2.8.0-0.8.0 /opt/apache
+mv kafka_2.10-0.8.2-beta /opt/apache
 cd /opt/apache
-ln -s /opt/apache/kafka_2.8.0-0.8.0 kafka
+ln -s /opt/apache/kafka_2.10-0.8.2-beta kafka
 
 exitscript

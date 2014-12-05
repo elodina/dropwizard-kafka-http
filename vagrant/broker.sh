@@ -51,4 +51,4 @@ sleep 10
 
 cd /vagrant
 mkdir -p log
-java -jar /vagrant/target/dropwizard-kafka-http-0.0.1-SNAPSHOT.jar server kafka-http.yml 1>> /vagrant/logs/stealthly.log 2>> /vagrant/logs/stealthly.log &
+java -jar /vagrant/target/dropwizard-kafka-http-0.0.1-SNAPSHOT.jar server kafka-http.yml 1>> /vagrant/log/stealthly.log 2>> /vagrant/log/stealthly.log &
