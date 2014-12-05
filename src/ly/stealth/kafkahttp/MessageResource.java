@@ -1,7 +1,8 @@
 package ly.stealth.kafkahttp;
 
+import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Strings;
-import com.yammer.metrics.annotation.Timed;
 import kafka.consumer.Consumer;
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerTimeoutException;
@@ -14,7 +15,7 @@ import kafka.producer.KeyedMessage;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.*;
 
 @Path("/message")
@@ -35,26 +36,22 @@ public class MessageResource {
             @FormParam("key") List<String> keys,
             @FormParam("message") List<String> messages
     ) {
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
         if (Strings.isNullOrEmpty(topic)) errors.add("Undefined topic");
 
-        if (keys.isEmpty()) errors.add("Undefined key");
         if (messages.isEmpty()) errors.add("Undefined message");
-        if (keys.size() != messages.size()) errors.add("Messages count != keys count");
+        if (!keys.isEmpty() && keys.size() != messages.size()) errors.add("Messages count != keys count");
 
         if (!errors.isEmpty())
             return Response.status(400)
                     .entity(errors)
                     .build();
 
-        assert keys != null;
-        assert messages != null;
-
-        List<KeyedMessage<String, String>> keyedMessages = new ArrayList<KeyedMessage<String, String>>();
-        for (int i = 0; i < keys.size(); i++) {
-            String key = keys.get(i);
+        List<KeyedMessage<String, String>> keyedMessages = new ArrayList<>();
+        for (int i = 0; i < messages.size(); i++) {
+            String key = keys.isEmpty() ? null : keys.get(i);
             String message = messages.get(i);
-            keyedMessages.add(new KeyedMessage<String, String>(topic, key, message));
+            keyedMessages.add(new KeyedMessage<>(topic, key, message));
         }
 
         producer.send(keyedMessages);
@@ -80,7 +77,7 @@ public class MessageResource {
         Map<String, List<KafkaStream<byte[], byte[]>>> streams = connector.createMessageStreams(streamCounts);
         KafkaStream<byte[], byte[]> stream = streams.get(topic).get(0);
 
-        List<Message> messages = new ArrayList<Message>();
+        List<Message> messages = new ArrayList<>();
         try {
             for (MessageAndMetadata<byte[], byte[]> messageAndMetadata : stream)
                 messages.add(new Message(messageAndMetadata));
@@ -96,6 +93,7 @@ public class MessageResource {
     public static class Message {
         public String topic;
 
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public String key;
         public String message;
 
@@ -105,10 +103,8 @@ public class MessageResource {
         public Message(MessageAndMetadata<byte[], byte[]> message) {
             this.topic = message.topic();
 
-            try {
-                this.key = new String(message.key(), "UTF-8");
-                this.message = new String(message.message(), "UTF-8");
-            } catch (UnsupportedEncodingException impossible) { /* ignore */ }
+            this.key = message.key() != null ? new String(message.key(), Charset.forName("utf-8")) : null;
+            this.message = new String(message.message(), Charset.forName("utf-8"));
 
             this.partition = message.partition();
             this.offset = message.offset();

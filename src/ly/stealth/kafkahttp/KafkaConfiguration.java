@@ -1,6 +1,6 @@
 package ly.stealth.kafkahttp;
 
-import com.yammer.dropwizard.config.Configuration;
+import io.dropwizard.Configuration;
 import kafka.api.OffsetRequest;
 
 import java.util.Properties;

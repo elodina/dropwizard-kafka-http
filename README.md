@@ -69,10 +69,10 @@ Produces messages on topic.
 
 Parameters:
 topic   - required topic name
-key     - required key text. Multiple values are possible
+key     - optional key text. Multiple values are possible
 message - required message text. Multiple values are possible
 
-Note: passed keys count should match messages count.
+Note: if keys are passed, then passed keys count should match messages count.
 
 Errors:
 400     - wrong parameters passed
