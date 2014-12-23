@@ -8,9 +8,9 @@ import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerTimeoutException;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
-import kafka.javaapi.producer.Producer;
 import kafka.message.MessageAndMetadata;
-import kafka.producer.KeyedMessage;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -21,10 +21,10 @@ import java.util.*;
 @Path("/message")
 @Produces(MediaType.APPLICATION_JSON)
 public class MessageResource {
-    private Producer<String, String> producer;
-    private KafkaConfiguration.Consumer consumerCfg;
+    private KafkaProducer producer;
+    private Properties consumerCfg;
 
-    public MessageResource(Producer<String, String> producer, KafkaConfiguration.Consumer consumerCfg) {
+    public MessageResource(KafkaProducer producer, Properties consumerCfg) {
         this.producer = producer;
         this.consumerCfg = consumerCfg;
     }
@@ -47,14 +47,13 @@ public class MessageResource {
                     .entity(errors)
                     .build();
 
-        List<KeyedMessage<String, String>> keyedMessages = new ArrayList<>();
+        Charset charset = Charset.forName("utf-8");
         for (int i = 0; i < messages.size(); i++) {
             String key = keys.isEmpty() ? null : keys.get(i);
             String message = messages.get(i);
-            keyedMessages.add(new KeyedMessage<>(topic, key, message));
+            producer.send(new ProducerRecord(topic, key != null ? key.getBytes(charset) : null, message.getBytes(charset)));
         }
 
-        producer.send(keyedMessages);
         return Response.ok().build();
     }
 
@@ -69,7 +68,9 @@ public class MessageResource {
                     .entity(new String[]{"Undefined topic"})
                     .build();
 
-        Properties props = consumerCfg.asProperties(timeout);
+        Properties props = (Properties) consumerCfg.clone();
+        if (timeout != null) props.put("consumer.timeout.ms", "" + timeout);
+
         ConsumerConfig config = new ConsumerConfig(props);
         ConsumerConnector connector = Consumer.createJavaConsumerConnector(config);
 

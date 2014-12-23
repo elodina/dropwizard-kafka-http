@@ -1,45 +1,42 @@
 package ly.stealth.kafkahttp;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.dropwizard.Configuration;
-import kafka.api.OffsetRequest;
 
+import java.io.IOException;
 import java.util.Properties;
 
 public class KafkaConfiguration extends Configuration {
-    public Consumer consumer;
-    public Producer producer;
+    @JsonDeserialize(using = PropertiesDeserializer.class)
+    public Properties producer = new Properties();
 
-    public static class Producer {
-        public String metadataBrokerList;
-        public String serializerClass;
-        public String producerType;
+    @JsonDeserialize(using = PropertiesDeserializer.class)
+    public Properties consumer = new Properties();
 
-        public Properties asProperties() {
-            Properties p = new Properties();
+    public static class PropertiesDeserializer extends JsonDeserializer<Properties> {
+        @Override
+        public Properties deserialize(JsonParser jp, DeserializationContext context) throws IOException {
+            Properties props = new Properties();
+            if (!jp.hasCurrentToken() || jp.getCurrentToken() != JsonToken.START_OBJECT)
+                return props;
 
-            p.put("metadata.broker.list", metadataBrokerList);
-            p.put("serializer.class", serializerClass);
-            p.put("producer.type", producerType);
-            p.put("producer.type", "async");
+            String name = null;
+            for (JsonToken token = jp.nextToken(); token != JsonToken.END_OBJECT; token = jp.nextToken()) {
+                switch (token) {
+                    case FIELD_NAME: name = jp.getCurrentName(); break;
+                    case VALUE_STRING:
+                        String value = jp.getValueAsString();
+                        props.setProperty(name, value); break;
+                    default:
+                        throw new UnsupportedOperationException("Unsupported configuration item " + token + ". Only string values are supported");
+                }
+            }
 
-            return p;
-        }
-    }
-
-    public static class Consumer {
-        public String zookeeperConnect;
-        public String groupId;
-        public int consumerTimeoutMs;
-
-        public Properties asProperties(Integer timeoutMs) {
-            Properties p = new Properties();
-
-            p.put("zookeeper.connect", zookeeperConnect);
-            p.put("group.id", groupId);
-            p.put("auto.offset.reset", OffsetRequest.SmallestTimeString());
-            p.put("consumer.timeout.ms", "" + (timeoutMs != null ? timeoutMs : consumerTimeoutMs));
-
-            return p;
+            return props;
         }
     }
 }

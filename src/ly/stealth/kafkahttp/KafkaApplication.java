@@ -1,19 +1,18 @@
 package ly.stealth.kafkahttp;
 
+import com.codahale.metrics.health.HealthCheck;
 import io.dropwizard.Application;
+import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.dropwizard.lifecycle.Managed;
-import com.codahale.metrics.health.HealthCheck;
-import kafka.javaapi.producer.Producer;
-import kafka.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.KafkaProducer;
 
 public class KafkaApplication extends Application<KafkaConfiguration> implements Managed {
     public static void main(String[] args) throws Exception {
         new KafkaApplication().run(args);
     }
 
-    private Producer<String, String> producer;
+    private KafkaProducer producer;
 
     @Override
     public String getName() { return "kafka-http"; }
@@ -23,9 +22,7 @@ public class KafkaApplication extends Application<KafkaConfiguration> implements
 
     @Override
     public void run(KafkaConfiguration configuration, Environment environment) {
-        ProducerConfig config = new ProducerConfig(configuration.producer.asProperties());
-        producer = new Producer<>(config);
-
+        producer = new KafkaProducer(configuration.producer);
         environment.jersey().register(new MessageResource(producer, configuration.consumer));
         environment.healthChecks().register("empty", new EmptyHealthCheck());
     }
