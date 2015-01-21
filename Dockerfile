@@ -20,7 +20,7 @@ RUN apt-fast install -y oracle-java8-set-default
 
 
 ENV MAVEN_VERSION 3.2.2
-ADD http://www.us.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz /tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz
+ADD https://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz /tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz
 RUN tar xfz /tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz -C /opt
 
 ENV PATH /opt/apache-maven-$MAVEN_VERSION/bin:$PATH
