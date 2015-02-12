@@ -1,5 +1,7 @@
 producer:
   "bootstrap.servers": "192.168.22.10:9092"
+  "key.serializer": "org.apache.kafka.common.serialization.ByteArraySerializer"
+  "value.serializer": "org.apache.kafka.common.serialization.ByteArraySerializer"
 
 consumer:
   "zookeeper.connect": "192.168.22.5:2181"
